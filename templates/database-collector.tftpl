@@ -1,0 +1,67 @@
+groups:
+- name: Oracle Immutable Alerts
+  rules:
+  - alert: OracleDBDown
+    expr: oracledb_up == 0
+    for: 0s
+    labels:
+      severity: critical
+    annotations:
+      summary: Oracle Database Unreachable
+      description: The Oracle Database `{{ $labels.databaseIdentifier }}` is currently unreachable.
+
+- name: Oracle Database Alerts
+  rules:
+  - alert: OracleTableSpaceHighUsage
+    expr: oracledb_tablespace_used_percent{type!="TEMPORARY", databaseIdentifier="${databaseIdentifier}"} > ${thresholds.TablespaceWarning}
+    for: 0s
+    labels:
+      severity: warning
+    annotations:
+      summary: High Table Space Usage in Oracle Database
+      description: The tablespace on the Oracle DB instance `{{ $labels.databaseIdentifier }}` has usage above ${thresholds.TablespaceWarning}%, specifically in `{{ $labels.tablespace }}`. Current usage is `{{ $value | humanize }}`.
+
+  - alert: OracleTableSpaceCriticalUsage
+    expr: oracledb_tablespace_used_percent{type!="TEMPORARY", databaseIdentifier="${databaseIdentifier}"} > ${thresholds.TablespaceCritical}
+    for: 0s
+    labels:
+      severity: critical
+    annotations:
+      summary: Critical Table Space Usage in Oracle Database
+      description: The tablespace on the Oracle DB instance `{{ $labels.databaseIdentifier }}` has usage above ${thresholds.TablespaceCritical}%, specifically in `{{ $labels.tablespace }}`. Current usage is `{{ $value | humanize }}`.
+
+  - alert: OracleSessionHighUtilization
+    expr: oracledb_sessions_utilization_percent{databaseIdentifier="${databaseIdentifier}"} > ${thresholds.SessionUtilization}
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: High Session Utilization in Oracle Database
+      description: On the Oracle Database `{{ $labels.databaseIdentifier }}`, the session utilization percentage is critically high. Current utilization is `{{ $value | humanize }}`.
+
+  - alert: OracleRecoveryFileDestinationUsageHigh
+    expr: oracledb_recovery_file_dest_perc_used{databaseIdentifier="${databaseIdentifier}"} > ${thresholds.RecoveryFileDestinationUsage}
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: High Recovery percentage usage
+      description: On Database `{{ $labels.databaseIdentifier }}`, recovery space utilization percentage is high. Current Utilization `{{ $value | humanize }}`
+
+  - alert: OracleBlockingCount
+    expr: oracledb_blocking_count{databaseIdentifier="${databaseIdentifier}"} > ${thresholds.BlockingCount}
+    for: 15m
+    labels:
+      severity: critical
+    annotations:
+      summary: High blocking count
+      description: High blocking count on db `{{ $labels.databaseIdentifier }}`, current `{{ $value | humanize }}`
+
+  - alert: OracleDatabaseRestarted
+    expr: oracledb_startup_time_seconds{databaseIdentifier="${databaseIdentifier}"} < ${thresholds.DatabaseRestarted}
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: OracleDB Restarted
+      description: Oracle `{{ $labels.databaseIdentifier }}` startup time is less than 1200 seconds, current started since `{{ $value | humanize }}`
