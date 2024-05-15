@@ -1,62 +1,96 @@
-variable "provider_region" {
-  description = "The region in which the provider will be created"
-  default     = "us-east-2"
-}
-
-variable "rule_group_namespace_name" {
-  description = "The name of the namespace in which the rule group will be created"
-  default     = "default"
+variable "namespace" {
+  description = "Namespace to in which to create alarms, default is based on database_identifier"
+  type        = string
 }
 
 variable "prometheus_workspace_id" {
-  description = "The workspace id of the prometheus workspace"
+  description = "ID of the workspace to create the alarms in"
+  type        = string
 }
 
-variable "database_collector_thresholds" {
-  description = "The rules for the database collector"
-  type = map(object({
-    thresholds = object({
-      TablespaceWarning = number
-      TablespaceCritical = number
-      SessionUtilization = number
-      RecoveryFileDestinationUsage = number
-      BlockingCount = number
-      DatabaseRestarted = number
-    })
-  }))
-  default = {
-    test = {
-      thresholds = {
-        TablespaceWarning = 85
-        TablespaceCritical = 90
-        SessionUtilization = 70
-        RecoveryFileDestinationUsage = 80
-        BlockingCount = 0
-        DatabaseRestarted = 1200
-      }
-    }
-    test1 = {
-      thresholds = {
-        TablespaceWarning = 80
-        TablespaceCritical = 95
-        SessionUtilization = 85
-        RecoveryFileDestinationUsage = 90
-        BlockingCount = 1
-        DatabaseRestarted = 1500
-      }
-    }
-  }
+variable "database_identifier" {
+  description = "Identifier of the databsae to create alarms for"
+  type        = string
 }
 
-// Option 2
-variable "alert_rules" {
-  description = "The alert rules to be created"
-    type = map(object({
-        alert_rule_name = string
-        alert_rule_description = string
-        alert_rule_expression = string
-        alert_rule_duration = string
-        alert_rule_severity = string
-        alert_rule_namespace = string
-    }))
+variable "alert_database_down" {
+  description = "Enable alert for database down"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "alert_warning_blocking_sessions_count" {
+  description = "Number of blocking sessions before triggering a warning alert"
+  type        = number
+  default     = 2
+  nullable    = true
+}
+
+variable "alert_critical_blocking_sessions_count" {
+  description = "Number of blocking sessions before trigger a critical alert"
+  type        = number
+  default     = 5
+  nullable    = true
+}
+
+variable "alert_warning_tablespace_used_percent_global" {
+  description = "Percentage of used tablespace before trigger a warning alert"
+  type        = number
+  default     = 90
+  nullable    = true
+}
+
+variable "alert_critical_tablespace_used_percent_global" {
+  description = "Percentage of used tablespace before trigger a critical alert"
+  type        = number
+  default     = 95
+  nullable    = true
+}
+
+variable "alert_warning_tablespace_used_percent" {
+  description = "Percentage of used tablespace before trigger a warning alert"
+  type        = map(number)
+  default     = null
+  nullable    = true
+  #   default = {
+  #     "SYSTEM" = 90
+  #     "SYSAUX" = 90
+  #     "USERS"  = 90
+  #   }
+}
+
+variable "alert_critical_tablespace_used_percent" {
+  description = "Percentage of used tablespace before trigger a critical alert"
+  type        = map(number)
+  default     = null
+  nullable    = true
+}
+
+variable "alert_warning_session_utilization_percent" {
+  description = "Percentage of session utilization before trigger a warning alert"
+  type        = number
+  default     = 90
+  nullable    = true
+}
+
+variable "alert_critical_session_utilization_percent" {
+  description = "Percentage of session utilization before trigger a critical alert"
+  type        = number
+  default     = 95
+  nullable    = true
+}
+
+variable "alert_warning_recovery_file_destination_used_percent" {
+  description = "Percentage of recovery file destination used before trigger a warning alert"
+  type        = number
+  default     = 90
+  nullable    = true
+}
+
+variable "alert_critical_recovery_file_destination_used_percent" {
+  description = "Percentage of recovery file destination used before trigger a critical alert"
+  type        = number
+  default     = 95
+  nullable    = true
 }
