@@ -1,7 +1,6 @@
 groups:
 - name: Oracle Database Alerts
   rules:
-  ## Database Down
   %{~ if alert_database_down == true ~}
   - alert: OracleDatabaseDown
     expr: oracledb_up{databaseIdentifier="${database_identifier}"} == 0
@@ -10,9 +9,8 @@ groups:
       severity: critical
     annotations:
       summary: Oracle database is down
-      description: Oracle database `{{ $labels.databaseIdentifier }}` is down
+      description: The Oracle database identified by `{{ $labels.databaseIdentifier }}` is currently down.
   %{~ endif ~}
-  ## Blocking sessions warning
   %{~ if alert_warning_blocking_sessions_count != null ~}
   - alert: OracleBlockingCount
     expr: oracledb_blocking_count{databaseIdentifier="${database_identifier}"} > ${alert_warning_blocking_sessions_count}
@@ -20,10 +18,9 @@ groups:
     labels:
       severity: warning
     annotations:
-      summary: High blocking count
-      description: High blocking count on db `{{ $labels.databaseIdentifier }}`, current `{{ $value | humanize }}`
+      summary: High Blocking Sessions Count Warning
+      description: Blocking sessions count on Oracle database `{{ $labels.databaseIdentifier }}` is currently high with `{{ $value | humanize }}` sessions.
   %{~ endif ~}
-  ## Blocking sessions critical
   %{~ if alert_critical_blocking_sessions_count != null ~}
   - alert: OracleBlockingCount
     expr: oracledb_blocking_count{databaseIdentifier="${database_identifier}"} > ${alert_critical_blocking_sessions_count}
@@ -31,10 +28,9 @@ groups:
     labels:
       severity: critical
     annotations:
-      summary: High blocking count
-      description: High blocking count on db `{{ $labels.databaseIdentifier }}`, current `{{ $value | humanize }}`
+      summary: High Blocking Sessions Count Critical
+      description: Blocking sessions count on Oracle database `{{ $labels.databaseIdentifier }}` is currently high with `{{ $value | humanize }}` sessions.
   %{~ endif ~}
-  ## Tablespace usage warning
   %{~ if alert_warning_tablespace_used_percent_global != null ~}
   - alert: OracleTableSpaceHighUsage
     expr: oracledb_tablespace_used_percent{type!="TEMPORARY", databaseIdentifier="${database_identifier}"} > ${alert_warning_tablespace_used_percent_global}
@@ -42,10 +38,9 @@ groups:
     labels:
       severity: warning
     annotations:
-      summary: High Table Space Usage in Oracle Database
-      description: The tablespace {{ $labels.tablespace }} on the Oracle DB instance {{ $labels.databaseIdentifier }} is currently using more than ${alert_warning_tablespace_used_percent_global}% of its capacity. Current usage: {{ $value | humanize }}.
+      summary: High Tablespace Usage Warning
+      description: The tablespace {{ $labels.tablespace }} on the Oracle DB instance {{ $labels.databaseIdentifier }} is currently using more than ${alert_warning_tablespace_used_percent_global}% of its capacity. Current usage {{ $value | humanize }}.
   %{~ endif ~}
-  ## Tablespace usage critical
   %{~ if alert_critical_tablespace_used_percent_global != null ~}
   - alert: OracleTableSpaceHighUsage
     expr: oracledb_tablespace_used_percent{type!="TEMPORARY", databaseIdentifier="${database_identifier}"} > ${alert_critical_tablespace_used_percent_global}
@@ -53,10 +48,9 @@ groups:
     labels:
       severity: critical
     annotations:
-      summary: High Table Space Usage in Oracle Database
-      description: The tablespace {{ $labels.tablespace }} on the Oracle DB instance {{ $labels.databaseIdentifier }} is currently using more than ${alert_critical_tablespace_used_percent_global}% of its capacity. Current usage: {{ $value | humanize }}.
+      summary: High Tablespace Usage Critical
+      description: The tablespace {{ $labels.tablespace }} on the Oracle DB instance {{ $labels.databaseIdentifier }} is currently using more than ${alert_critical_tablespace_used_percent_global}% of its capacity. Current usage {{ $value | humanize }}.
   %{~ endif ~}
-  ## Tablespace usage per tablespace warning
   %{~ if alert_warning_tablespace_used_percent != null ~}
   %{~ for tablespace, threshold in alert_warning_tablespace_used_percent ~}
   - alert: OracleTableSpaceHighUsage
@@ -66,10 +60,9 @@ groups:
       severity: warning
     annotations:
       summary: High Table Space Usage in Oracle Database
-      description: The tablespace on the Oracle DB instance `{{ $labels.databaseIdentifier }}` has usage above ${threshold}%, specifically in `{{ $labels.tablespace }}`. Current usage is `{{ $value | humanize }}`.
+      description: The tablespace on the Oracle DB instance `{{ $labels.databaseIdentifier }}` has usage above ${threshold}%, specifically in `{{ $labels.tablespace }}`. Current usage `{{ $value | humanize }}`.
   %{~ endfor ~}
   %{~ endif ~}
-  ## Tablespace usage per tablespace critical
   %{~ if alert_critical_tablespace_used_percent != null ~}
   %{~ for tablespace, threshold in alert_critical_tablespace_used_percent ~}
   - alert: OracleTableSpaceHighUsage
@@ -79,10 +72,9 @@ groups:
       severity: critical
     annotations:
       summary: High Table Space Usage in Oracle Database
-      description: The tablespace on the Oracle DB instance `{{ $labels.databaseIdentifier }}` has usage above ${threshold}%, specifically in `{{ $labels.tablespace }}`. Current usage is `{{ $value | humanize }}`.
+      description: The tablespace on the Oracle DB instance `{{ $labels.databaseIdentifier }}` has usage above ${threshold}%, specifically in `{{ $labels.tablespace }}`. Current usage `{{ $value | humanize }}`.
   %{~ endfor ~}
   %{~ endif ~}
-  ## Sessions utilization warning
   %{~ if alert_warning_session_utilization_percent != null ~}
   - alert: OracleSessionHighUtilization
     expr: oracledb_sessions_utilization_percent{databaseIdentifier="${database_identifier}"} > ${alert_warning_session_utilization_percent}
@@ -91,9 +83,8 @@ groups:
       severity: warning
     annotations:
       summary: High Session Utilization in Oracle Database
-      description: On the Oracle Database `{{ $labels.databaseIdentifier }}`, the session utilization percentage is high. Current utilization is `{{ $value | humanize }}`.
+      description: On the Oracle Database `{{ $labels.databaseIdentifier }}`, the session utilization percentage is high. Current utilization `{{ $value | humanize }}`.
   %{~ endif ~}
-  ## Sessions utilization critical
   %{~ if alert_critical_session_utilization_percent != null ~}
   - alert: OracleSessionHighUtilization
     expr: oracledb_sessions_utilization_percent{databaseIdentifier="${database_identifier}"} > ${alert_critical_session_utilization_percent}
@@ -102,9 +93,8 @@ groups:
       severity: critical
     annotations:
       summary: High Session Utilization in Oracle Database
-      description: On the Oracle Database `{{ $labels.databaseIdentifier }}`, the session utilization percentage is critically high. Current utilization is `{{ $value | humanize }}`.
+      description: On the Oracle Database `{{ $labels.databaseIdentifier }}`, the session utilization percentage is critically high. Current utilization `{{ $value | humanize }}`.
   %{~ endif ~}
-  ## Recovery file destination usage warning
   %{~ if alert_warning_recovery_file_destination_used_percent != null ~}
   - alert: OracleRecoveryFileDestinationUsageHigh
     expr: oracledb_recovery_file_dest_perc_used{databaseIdentifier="${database_identifier}"} > ${alert_warning_recovery_file_destination_used_percent}
@@ -115,7 +105,6 @@ groups:
       summary: High Recovery percentage usage
       description: On Database `{{ $labels.databaseIdentifier }}`, recovery space utilization percentage is high. Current Utilization `{{ $value | humanize }}`
   %{~ endif ~}
-  ## Recovery file destination usage critical
   %{~ if alert_critical_recovery_file_destination_used_percent != null ~}
   - alert: OracleRecoveryFileDestinationUsageHigh
     expr: oracledb_recovery_file_dest_perc_used{databaseIdentifier="${database_identifier}"} > ${alert_critical_recovery_file_destination_used_percent}
